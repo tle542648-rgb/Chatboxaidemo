@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Dinh Dưỡng AI</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+tailwind.config = {
+  darkMode:"class",
+  theme:{extend:{
+    colors:{
+      "primary":"#00D084","on-primary":"#ffffff","primary-container":"#D1FAE5",
+      "secondary":"#006c4e","surface":"#f8faf9","on-surface":"#191c1c",
+      "surface-variant":"#f2f4f3","on-surface-variant":"#3d4943",
+      "outline":"#6d7a73","outline-variant":"#bccac1","error":"#ba1a1a",
+      "surface-container-low":"#f2f4f3","surface-container":"#eceeed",
+      "surface-container-lowest":"#ffffff","surface-container-highest":"#e1e3e2",
+      "on-secondary-container":"#003924","secondary-container":"#D1FAE5",
+      "vibrant-green":"#00D084"
+    },
+    fontFamily:{"headline":["Plus Jakarta Sans"],"body":["Plus Jakarta Sans"],"label":["Plus Jakarta Sans"]},
+    borderRadius:{"DEFAULT":"0.5rem","lg":"0.75rem","xl":"1rem","2xl":"1.5rem","3xl":"2rem","full":"9999px"},
+  }}
+}
+</script>
+<style>
+.material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24}
+.no-scrollbar::-webkit-scrollbar{display:none}
+.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}
+.custom-scrollbar::-webkit-scrollbar{width:4px}
+.custom-scrollbar::-webkit-scrollbar-track{background:transparent}
+.custom-scrollbar::-webkit-scrollbar-thumb{background:#00D084;border-radius:10px}
+.vibrant-gradient{background:linear-gradient(135deg,#00D084 0%,#009E64 100%)}
+.glass-panel{background:rgba(255,255,255,0.8);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.4)}
+.glass-bubble-ai{background:rgba(242,244,243,0.7);border:1px solid rgba(255,255,255,0.5)}
+.glass-bubble-user{background:rgba(0,208,132,0.9);border:1px solid rgba(255,255,255,0.2)}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.meal-card{transition:all .3s cubic-bezier(.4,0,.2,1)}
+.meal-card:hover{transform:translateY(-2px)}
+.progress-glow{background:linear-gradient(90deg,#00D084 0%,#00F5A0 100%);box-shadow:0 0 12px rgba(0,208,132,.35)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.fade-up{animation:fadeUp .22s ease}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid #bccac1;border-top-color:#00D084;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+.md-content strong{font-weight:700}
+.md-content p{margin:6px 0}
+</style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased min-h-screen">
+
+<!-- ═══ HEADER ═══ -->
+<header class="sticky top-0 z-50 w-full glass-panel shadow-[0_8px_30px_rgba(0,0,0,0.05)]">
+  <div class="flex justify-between items-center px-5 py-3.5 max-w-[680px] mx-auto">
+    <div class="flex items-center gap-2 text-[#006c4e] font-extrabold text-lg">
+      <span class="material-symbols-outlined text-primary" style="font-variation-settings:'FILL' 1">soup_kitchen</span>
+      <span>Dinh Dưỡng AI</span>
+    </div>
+    <div class="flex items-center gap-2 bg-secondary-container px-3 py-1.5 rounded-full">
+      <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+      <span class="text-[#003924] text-xs font-bold uppercase tracking-wider">Gemini 2.5</span>
+    </div>
+  </div>
+</header>
+
+<!-- ═══ NAV TABS ═══ -->
+<nav class="sticky top-[57px] z-40 w-full overflow-x-auto no-scrollbar bg-white/80 backdrop-blur-xl border-b border-outline-variant/20" id="main-nav">
+  <div class="max-w-[680px] mx-auto flex items-center gap-1 px-4 py-0">
+    <button onclick="goTab('chat',this)" class="nav-tab active flex items-center gap-1.5 px-3 py-3.5 text-sm font-semibold whitespace-nowrap border-b-2 border-primary text-primary transition-all">
+      <span class="material-symbols-outlined text-[18px]" style="font-variation-settings:'FILL' 1">chat_spark</span>Chat AI
+    </button>
+    <button onclick="goTab('lookup',this)" class="nav-tab flex items-center gap-1.5 px-3 py-3.5 text-sm font-medium whitespace-nowrap border-b-2 border-transparent text-outline hover:text-on-surface transition-all">
+      <span class="material-symbols-outlined text-[18px]">search</span>Tra cứu
+    </button>
+    <button onclick="goTab('bmi',this)" class="nav-tab flex items-center gap-1.5 px-3 py-3.5 text-sm font-medium whitespace-nowrap border-b-2 border-transparent text-outline hover:text-on-surface transition-all">
+      <span class="material-symbols-outlined text-[18px]">calculate</span>BMI
+    </button>
+    <button onclick="goTab('tracker',this)" class="nav-tab flex items-center gap-1.5 px-3 py-3.5 text-sm font-medium whitespace-nowrap border-b-2 border-transparent text-outline hover:text-on-surface transition-all">
+      <span class="material-symbols-outlined text-[18px]">menu_book</span>Nhật ký
+    </button>
+    <button onclick="goTab('vnfoods',this)" class="nav-tab flex items-center gap-1.5 px-3 py-3.5 text-sm font-medium whitespace-nowrap border-b-2 border-transparent text-outline hover:text-on-surface transition-all">
+      <span class="material-symbols-outlined text-[18px]">flatware</span>Kho VN
+    </button>
+    <button onclick="goTab('compare',this)" class="nav-tab flex items-center gap-1.5 px-3 py-3.5 text-sm font-medium whitespace-nowrap border-b-2 border-transparent text-outline hover:text-on-surface transition-all">
+      <span class="material-symbols-outlined text-[18px]">compare_arrows</span>So sánh
+    </button>
+    <button onclick="goTab('scan',this)" class="nav-tab flex items-center gap-1.5 px-3 py-3.5 text-sm font-medium whitespace-nowrap border-b-2 border-transparent text-outline hover:text-on-surface transition-all">
+      <span class="material-symbols-outlined text-[18px]">barcode_scanner</span>Quét nhãn
+    </button>
+  </div>
+</nav>
+
+<main class="max-w-[680px] mx-auto px-4 py-6 pb-32">
+
+<!-- ═══ TAB: CHAT AI ═══ -->
+<div id="tab-chat" class="tab-panel active">
+  <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 shadow-[0_4px_20px_rgba(0,0,0,0.04)] overflow-hidden">
+    <div class="px-5 py-4 border-b border-outline-variant/10">
+      <h2 class="text-base font-bold text-on-surface">Hỏi chuyên gia AI</h2>
+      <p class="text-xs text-outline mt-0.5">Gemini 2.5 Flash với Google Search cập nhật mới nhất</p>
+    </div>
+    <div id="chat-box" class="custom-scrollbar overflow-y-auto px-4 py-4 space-y-5" style="min-height:260px;max-height:420px">
+      <div class="flex items-start gap-3">
+        <div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center shrink-0">
+          <span class="material-symbols-outlined text-primary text-[16px]" style="font-variation-settings:'FILL' 1">eco</span>
+        </div>
+        <div class="glass-bubble-ai px-4 py-3 rounded-2xl rounded-tl-none text-sm leading-relaxed max-w-[82%]">
+          Xin chào! Tôi là chuyên gia dinh dưỡng AI. Hỏi tôi bất cứ điều gì về chế độ ăn uống, dinh dưỡng hay thực phẩm nhé! 🌿
+        </div>
+      </div>
+    </div>
+    <div class="px-4 pb-4 space-y-3 border-t border-outline-variant/10 pt-3">
+      <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+        <button onclick="quickAsk('Tôi nên ăn gì trước khi tập gym?')" class="shrink-0 bg-surface-container text-on-surface-variant px-4 py-2 rounded-full text-xs font-semibold hover:bg-secondary-container hover:text-primary transition-all border border-outline-variant/20">Trước tập gym</button>
+        <button onclick="quickAsk('Thực đơn giảm cân 1500 calo cho người Việt?')" class="shrink-0 bg-surface-container text-on-surface-variant px-4 py-2 rounded-full text-xs font-semibold hover:bg-secondary-container hover:text-primary transition-all border border-outline-variant/20">Giảm cân 1500 kcal</button>
+        <button onclick="quickAsk('Chế độ ăn cho người tiểu đường type 2?')" class="shrink-0 bg-surface-container text-on-surface-variant px-4 py-2 rounded-full text-xs font-semibold hover:bg-secondary-container hover:text-primary transition-all border border-outline-variant/20">Tiểu đường</button>
+        <button onclick="quickAsk('Thực phẩm giàu protein tốt nhất?')" class="shrink-0 bg-surface-container text-on-surface-variant px-4 py-2 rounded-full text-xs font-semibold hover:bg-secondary-container hover:text-primary transition-all border border-outline-variant/20">Protein cao</button>
+        <button onclick="quickAsk('Tôi cần ăn gì để tăng cơ bắp?')" class="shrink-0 bg-surface-container text-on-surface-variant px-4 py-2 rounded-full text-xs font-semibold hover:bg-secondary-container hover:text-primary transition-all border border-outline-variant/20">Tăng cơ</button>
+      </div>
+      <div class="flex items-center gap-2 bg-surface-container rounded-2xl p-1.5 pr-2 border border-outline-variant/20 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10 transition-all">
+        <input id="chat-inp" type="text" placeholder="Câu hỏi dinh dưỡng..." onkeydown="if(event.key==='Enter')sendChat()" class="flex-1 bg-transparent border-none focus:ring-0 text-sm px-3 py-1.5 placeholder:text-outline/60"/>
+        <button onclick="sendChat()" class="vibrant-gradient w-9 h-9 rounded-xl flex items-center justify-center text-white shrink-0 active:scale-90 transition-all shadow-[0_4px_12px_rgba(0,208,132,0.3)]">
+          <span class="material-symbols-outlined text-[18px]" style="font-variation-settings:'FILL' 1">send</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Thực đơn AI card -->
+  <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 shadow-[0_4px_20px_rgba(0,0,0,0.04)] mt-4 p-5">
+    <h3 class="text-sm font-bold text-on-surface mb-1">Tạo thực đơn 1 ngày</h3>
+    <p class="text-xs text-outline mb-4">AI tạo thực đơn Việt Nam phù hợp mục tiêu của bạn</p>
+    <div class="grid grid-cols-2 gap-3 mb-3">
+      <div>
+        <label class="text-xs text-outline block mb-1">Mục tiêu calo (kcal)</label>
+        <input type="number" id="td-calo" placeholder="VD: 1800" class="w-full px-3 py-2.5 bg-surface-container rounded-xl border border-outline-variant/30 text-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none"/>
+      </div>
+      <div>
+        <label class="text-xs text-outline block mb-1">Mục tiêu</label>
+        <select id="td-mt" class="w-full px-3 py-2.5 bg-surface-container rounded-xl border border-outline-variant/30 text-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+          <option>Giảm cân</option><option>Tăng cơ</option><option>Duy trì sức khoẻ</option>
+        </select>
+      </div>
+    </div>
+    <div class="mb-3">
+      <label class="text-xs text-outline block mb-1">Không ăn được (nếu có)</label>
+      <input type="text" id="td-diung" placeholder="VD: hải sản, đậu phộng..." class="w-full px-3 py-2.5 bg-surface-container rounded-xl border border-outline-variant/30 text-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none"/>
+    </div>
+    <button id="td-btn" onclick="taoThucDon()" class="vibrant-gradient w-full py-3 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 shadow-[0_6px_18px_rgba(0,208,132,0.25)] active:scale-[0.98] transition-all">
+      <span class="material-symbols-outlined text-[18px]" style="font-variation-settings:'FILL' 1">auto_awesome</span>Tạo thực đơn bằng AI
+    </button>
+    <div id="td-result" class="mt-4"></div>
+  </div>
+</div>
+
+<!-- ═══ TAB: TRA CỨU ═══ -->
+<div id="tab-lookup" class="tab-panel">
+  <div class="mb-6">
+    <h1 class="text-2xl font-extrabold text-on-surface mb-1 tracking-tight">Tra cứu thực phẩm</h1>
+    <p class="text-sm text-outline">Nhận thông tin dinh dưỡng từ AI + Google Search</p>
+  </div>
+  <div class="flex gap-2 mb-6">
+    <div class="relative flex-1">
+      <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
+      <input id="sp-q" type="text" placeholder="Nhập tên thực phẩm, sản phẩm..." onkeydown="if(event.key==='Enter')searchProduct()" class="w-full pl-10 pr-4 py-3.5 bg-surface-container-lowest rounded-2xl border border-outline-variant/30 text-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none shadow-sm"/>
+    </div>
+    <button id="sp-btn" onclick="searchProduct()" class="vibrant-gradient px-5 py-3.5 rounded-2xl text-white font-bold text-sm flex items-center gap-2 shadow-[0_6px_18px_rgba(0,208,132,0.25)] active:scale-95 transition-all shrink-0">
+      <span class="material-symbols-outlined text-[18px]" style="font-variation-settings:'FILL' 1">auto_awesome</span>AI tra
+    </button>
+  </div>
+  <div class="flex flex-wrap gap-2 mb-6">
+    <button onclick="spQuick('Phở bò')" class="px-4 py-2 rounded-full bg-surface-container text-xs font-semibold text-on-surface-variant border border-outline-variant/20 hover:bg-secondary-container hover:text-primary transition-all">Phở bò</button>
+    <button onclick="spQuick('Cơm tấm')" class="px-4 py-2 rounded-full bg-surface-container text-xs font-semibold text-on-surface-variant border border-outline-variant/20 hover:bg-secondary-container hover:text-primary transition-all">Cơm tấm</button>
+    <button onclick="spQuick('Bún bò Huế')" class="px-4 py-2 rounded-full bg-surface-container text-xs font-semibold text-on-surface-variant border border-outline-variant/20 hover:bg-secondary-container hover:text-primary transition-all">Bún bò Huế</button>
+    <button onclick="spQuick('Bánh mì thịt')" class="px-4 py-2 rounded-full bg-surface-container text-xs font-semibold text-on-surface-variant border border-outline-variant/20 hover:bg-secondary-container hover:text-primary transition-all">Bánh mì</button>
+    <button onclick="spQuick('Gỏi cuốn')" class="px-4 py-2 rounded-full bg-surface-container text-xs font-semibold text-on-surface-variant border border-outline-variant/20 hover:bg-secondary-container hover:text-primary transition-all">Gỏi cuốn</button>
+  </div>
+  <div id="sp-result"></div>
+  <div id="sp-sources" class="mt-3"></div>
+</div>
+
+<!-- ═══ TAB: BMI ═══ -->
+<div id="tab-bmi" class="tab-panel">
+  <div class="mb-6">
+    <h1 class="text-2xl font-extrabold text-on-surface mb-1 tracking-tight">BMI & Nhu cầu calo</h1>
+    <p class="text-sm text-outline">Công thức Mifflin-St Jeor chuẩn quốc tế</p>
+  </div>
+  <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 shadow-sm p-5 mb-4">
+    <div class="grid grid-cols-2 gap-3 mb-3">
+      <div>
+        <label class="text-xs text-outline block mb-1">Cân nặng (kg)</label>
+        <input type="number" id="f-can" placeholder="VD: 60" class="w-full px-3 py-2.5 bg-surface-container rounded-xl border border-outline-variant/30 text-sm focus:ring-2 focus:ring-primary outline-none"/>
+      </div>
+      <div>
+        <label class="text-xs text-outline block mb-1">Chiều cao (cm)</label>
+        <input type="number" id="f-cao" placeholder="VD: 165" class="w-full px-3 py-2.5 bg-surface-container rounded-xl border border-outline-variant/30 text-sm focus:ring-2 focus:ring-primary outline-none"/>
+      </div>
+      <div>
+        <label class="text-xs text-outline block mb-1">Tuổi</label>
+        <input type="number" id="f-tuoi" placeholder="VD: 25" class="w-full px-3 py-2.5 bg-surface-container rounded-xl border border-outline-variant/30 text-sm focus:ring-2 focus:ring-primary outline-none"/>
+      </div>
+      <div>
+        <label class="text-xs text-outline block mb-1">Giới tính</label>
+        <select id="f-gt" class="w-full px-3 py-2.5 bg-surface-container rounded-xl border border-outline-variant/30 text-sm focus:ring-2 focus:ring-primary outline-none">
+          <option value="nu">Nữ</option><option value="nam">Nam</option>
+        </select>
+      </div>
+    </div>
+    <div class="mb-4">
+      <label class="text-xs text-outline block mb-1">Mức độ vận động</label>
+      <select id="f-vd" class="w-full px-3 py-2.5 bg-surface-container rounded-xl border border-outline-variant/30 text-sm focus:ring-2 focus:ring-primary outline-none">
+        <option value="it">Ít vận động (ngồi nhiều)</option>
+        <option value="nhe">Nhẹ (1–3 ngày/tuần)</option>
+        <option value="vua">Vừa (3–5 ngày/tuần)</option>
+        <option value="nhieu">Nhiều (6–7 ngày/tuần)</option>
+      </select>
+    </div>
+    <button onclick="tinhBMI()" class="vibrant-gradient w-full py-3 rounded-xl text-white font-bold text-sm shadow-[0_6px_18px_rgba(0,208,132,0.25)] active:scale-[0.98] transition-all">Tính ngay</button>
+  </div>
+  <div id="bmi-result" class="hidden">
+    <div class="grid grid-cols-2 gap-3 mb-4">
+      <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 p-4 text-center">
+        <p class="text-xs text-outline uppercase tracking-wide mb-1">Chỉ số BMI</p>
+        <p id="r-bmi" class="text-3xl font-black text-primary">—</p>
+        <p id="r-bmi-st" class="text-xs font-bold mt-1">—</p>
+      </div>
+      <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 p-4 text-center">
+        <p class="text-xs text-outline uppercase tracking-wide mb-1">Calo duy trì</p>
+        <p id="r-tdee" class="text-3xl font-black text-primary">—</p>
+        <p class="text-xs text-outline mt-1">kcal/ngày</p>
+      </div>
+    </div>
+    <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 p-4 space-y-3">
+      <div class="flex justify-between text-sm"><span class="text-outline">Giảm cân (−500 kcal)</span><span id="r-giam" class="font-bold text-primary">—</span></div>
+      <div class="flex justify-between text-sm border-t border-outline-variant/10 pt-3"><span class="text-outline">Tăng cân (+500 kcal)</span><span id="r-tang" class="font-bold">—</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TAB: NHẬT KÝ ═══ -->
+<div id="tab-tracker" class="tab-panel">
+  <div class="mb-6">
+    <h1 class="text-2xl font-extrabold text-on-surface mb-1 tracking-tight">Nhật ký hôm nay</h1>
+    <p class="text-sm text-outline" id="tracker-date"></p>
+  </div>
+  <!-- Stats -->
+  <div class="grid grid-cols-3 gap-3 mb-5">
+    <div class="col-span-2 bg-surface-container-lowest rounded-2xl border border-outline-variant/20 p-4">
+      <p class="text-xs text-outline uppercase tracking-wide mb-1">Đã nạp</p>
+      <div class="flex items-baseline gap-1 mb-3">
+        <span id="nk-total-num" class="text-2xl font-black text-on-surface">0</span>
+        <span class="text-xs text-outline">kcal</span>
+      </div>
+      <div class="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+        <div id="nk-progress-bar" class="h-full progress-glow rounded-full transition-all duration-700" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="vibrant-gradient rounded-2xl p-4 text-white flex flex-col justify-between">
+      <span class="material-symbols-outlined text-2xl opacity-80" style="font-variation-settings:'FILL' 1">water_drop</span>
+      <div>
+        <p class="text-xl font-black">2.0L</p>
+        <p class="text-[10px] opacity-70 uppercase tracking-widest font-bold">Mục tiêu nước</p>
+      </div>
+    </div>
+  </div>
+  <!-- Add food -->
+  <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 p-4 mb-4">
+    <h3 class="text-sm font-bold mb-3">Thêm món ăn</h3>
+    <div class="flex gap-2 mb-3">
+      <input id="nk-lookup-inp" type="text" placeholder="Tên món ăn..." class="flex-1 px-3 py-2.5 bg-surface-container rounded-xl border border-outline-variant/30 text-sm focus:ring-2 focus:ring-primary outline-none"/>
+      <button onclick="autoLookupCalo()" class="bg-secondary-container text-[#003924] px-4 py-2.5 rounded-xl text-xs font-bold hover:opacity-90 transition-all">Tra kcal</button>
+    </div>
+    <div id="nk-lookup-result" class="text-xs rounded-lg px-3 py-2 mb-3 hidden"></div>
+    <div id="nk-lookup-sugg" class="flex flex-wrap gap-2 mb-3"></div>
+    <div class="grid grid-cols-2 gap-2 mb-3">
+      <div>
+        <label class="text-xs text-outline block mb-1">Tên món</label>
+        <input id="nk-ten" type="text" placeholder="Tên món ăn" class="w-full px-3 py-2.5 bg-surface-container rounded-xl border border-outline-variant/30 text-sm focus:ring-2 focus:ring-primary outline-none"/>
+      </div>
+      <div>
+        <label class="text-xs text-outline block mb-1">Calo (kcal)</label>
+        <input id="nk-calo" type="number" placeholder="VD: 300" class="w-full px-3 py-2.5 bg-surface-container rounded-xl border border-outline-variant/30 text-sm focus:ring-2 focus:ring-primary outline-none"/>
+      </div>
+    </div>
+    <button onclick="themMon()" class="vibrant-gradient w-full py-2.5 rounded-xl text-white font-bold text-sm active:scale-[0.98] transition-all shadow-[0_4px_12px_rgba(0,208,132,0.2)]">+ Thêm vào nhật ký</button>
+  </div>
+  <!-- List -->
+  <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 overflow-hidden">
+    <div id="nk-list" class="divide-y divide-outline-variant/10"></div>
+    <div id="nk-footer" class="hidden px-4 py-3 border-t border-outline-variant/10">
+      <div class="flex justify-between items-center mb-2">
+        <span class="text-sm text-outline font-medium">Tổng hôm nay</span>
+        <span id="nk-sum" class="text-base font-black text-primary">0 kcal</span>
+      </div>
+      <button onclick="xoaNhatKy()" class="text-xs text-error/70 hover:text-error font-medium">Xoá tất cả</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TAB: KHO VN ═══ -->
+<div id="tab-vnfoods" class="tab-panel">
+  <div class="mb-5">
+    <h1 class="text-2xl font-extrabold text-on-surface mb-1 tracking-tight">Kho thực phẩm Việt Nam</h1>
+    <p class="text-sm text-outline">Thành phần dinh dưỡng chuẩn hoá</p>
+  </div>
+  <div class="relative mb-4">
+    <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
+    <input id="sp-vn-search" type="text" placeholder="Tìm thực phẩm..." oninput="filterVN(this.value)" class="w-full pl-10 pr-4 py-3 bg-surface-container-lowest rounded-2xl border border-outline-variant/30 text-sm focus:ring-2 focus:ring-primary outline-none shadow-sm"/>
+  </div>
+  <div id="sp-vn-filters" class="flex flex-wrap gap-2 mb-4 overflow-x-auto no-scrollbar pb-1"></div>
+  <div id="sp-vn-grid" class="grid grid-cols-2 gap-3"></div>
+  <div id="sp-vn-detail" class="mt-4"></div>
+</div>
+
+<!-- ═══ TAB: SO SÁNH ═══ -->
+<div id="tab-compare" class="tab-panel">
+  <div class="mb-6">
+    <h1 class="text-2xl font-extrabold text-on-surface mb-1 tracking-tight">So sánh dinh dưỡng</h1>
+    <p class="text-sm text-outline">AI đối chiếu sản phẩm dựa theo mục tiêu sức khoẻ</p>
+  </div>
+  <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 p-5 mb-5 shadow-sm">
+    <label class="text-xs font-bold text-primary uppercase tracking-wider block mb-3">Sản phẩm cần so sánh</label>
+    <div class="space-y-3 mb-4">
+      <div class="relative">
+        <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[18px]">looks_one</span>
+        <input id="cmp-1" type="text" placeholder="Sản phẩm 1 (VD: Sữa TH True Milk ít đường)" class="w-full pl-10 pr-4 py-3 bg-surface-container rounded-xl border border-outline-variant/30 text-sm focus:ring-2 focus:ring-primary outline-none"/>
+      </div>
+      <div class="relative">
+        <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[18px]">looks_two</span>
+        <input id="cmp-2" type="text" placeholder="Sản phẩm 2 (VD: Sữa Vinamilk ít đường)" class="w-full pl-10 pr-4 py-3 bg-surface-container rounded-xl border border-outline-variant/30 text-sm focus:ring-2 focus:ring-primary outline-none"/>
+      </div>
+      <div class="relative">
+        <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[18px]">looks_3</span>
+        <input id="cmp-3" type="text" placeholder="Sản phẩm 3 (không bắt buộc)" class="w-full pl-10 pr-4 py-3 bg-surface-container rounded-xl border border-outline-variant/30 text-sm focus:ring-2 focus:ring-primary outline-none"/>
+      </div>
+    </div>
+    <label class="text-xs font-bold text-primary uppercase tracking-wider block mb-2">Mục tiêu sức khoẻ</label>
+    <select id="cmp-goal" class="w-full px-4 py-3 bg-surface-container rounded-xl border border-outline-variant/30 text-sm focus:ring-2 focus:ring-primary outline-none mb-4">
+      <option>Chọn sản phẩm ít calo nhất</option>
+      <option>Chọn sản phẩm nhiều protein nhất</option>
+      <option>Phù hợp người tiểu đường</option>
+      <option>Phù hợp người giảm cân</option>
+      <option>Phù hợp người tập gym</option>
+      <option>Tổng quan so sánh đầy đủ</option>
+    </select>
+    <button id="cmp-btn" onclick="compareProducts()" class="vibrant-gradient w-full py-3.5 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 shadow-[0_6px_18px_rgba(0,208,132,0.25)] active:scale-[0.98] transition-all">
+      <span class="material-symbols-outlined text-[18px]" style="font-variation-settings:'FILL' 1">auto_awesome</span>So sánh bằng AI
+    </button>
+  </div>
+  <div id="cmp-result"></div>
+</div>
+
+<!-- ═══ TAB: QUÉT NHÃN ═══ -->
+<div id="tab-scan" class="tab-panel">
+  <div class="mb-6">
+    <h1 class="text-2xl font-extrabold text-on-surface mb-1 tracking-tight">Quét nhãn dinh dưỡng</h1>
+    <p class="text-sm text-outline">AI đọc và phân tích thông tin từ ảnh nhãn thực phẩm</p>
+  </div>
+  <div class="relative mb-5">
+    <label id="sp-upload-label" class="block w-full rounded-2xl border-2 border-dashed border-primary/50 bg-secondary-container/20 hover:bg-secondary-container/40 cursor-pointer transition-all p-10 text-center group">
+      <div class="w-16 h-16 rounded-full bg-secondary-container flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-all">
+        <span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings:'wght' 300">barcode_scanner</span>
+      </div>
+      <p class="font-bold text-on-surface mb-1">Chụp hoặc tải ảnh nhãn thực phẩm</p>
+      <p class="text-xs text-outline">Hỗ trợ JPG, PNG, HEIC, WEBP</p>
+      <input type="file" accept="image/*" onchange="handlePhotoUpload(this)" class="absolute inset-0 opacity-0 cursor-pointer"/>
+    </label>
+  </div>
+  <div id="sp-img-preview" class="hidden mb-4">
+    <img id="sp-preview-img" class="w-full max-h-64 object-contain rounded-2xl border border-outline-variant/20 shadow-sm" src="" alt="Preview"/>
+  </div>
+  <button id="sp-analyze-btn" onclick="analyzePhoto()" class="hidden vibrant-gradient w-full py-4 rounded-2xl text-white font-bold text-base flex items-center justify-center gap-2 shadow-[0_8px_24px_rgba(0,208,132,0.3)] active:scale-[0.98] transition-all mb-5">
+    <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1">bolt</span>AI phân tích nhãn
+  </button>
+  <div id="sp-photo-result" class="text-sm leading-relaxed"></div>
+</div>
+
+</main>
+
+<!-- ═══ BOTTOM SAFE AREA ═══ -->
+<div class="h-6"></div>
+<p class="fixed bottom-2 left-0 right-0 text-center text-[10px] text-outline/50 font-bold tracking-widest uppercase pointer-events-none">Thông tin mang tính tham khảo • Dinh Dưỡng AI v3.0</p>
+
+<script>
+// ═══ NAVIGATION ═══
+function goTab(name, btn) {
+  document.querySelectorAll('.tab-panel').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b => {
+    b.classList.remove('active','border-primary','text-primary','font-semibold');
+    b.classList.add('border-transparent','text-outline','font-medium');
+  });
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active','border-primary','text-primary','font-semibold');
+  btn.classList.remove('border-transparent','text-outline','font-medium');
+  if(name==='tracker') renderTracker();
+  if(name==='vnfoods') { buildVNFilters(); renderVN(''); }
+}
+
+// ═══ API ═══
+async function callAI(contents, system, tools, _retry) {
+  system = system || 'Bạn là chuyên gia dinh dưỡng người Việt. Trả lời bằng tiếng Việt, ngắn gọn, thực tế.';
+  const body = { contents, systemInstruction: { parts: [{ text: system }] } };
+  if (tools) body.tools = tools;
+  try {
+    const res = await fetch('/api/gemini', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    const data = await res.json();
+    if (res.status === 429) {
+      if (!_retry) { await new Promise(r => setTimeout(r, 3000)); return callAI(contents, system, tools, true); }
+      return { err: '⚠️ API đang bận. Vui lòng chờ 30 giây rồi thử lại.' };
+    }
+    if (!res.ok) return { err: '❌ Lỗi: ' + (data.error?.message || 'Không xác định') };
+    return {
+      text: data.candidates?.[0]?.content?.parts?.[0]?.text || '',
+      meta: data.candidates?.[0]
+    };
+  } catch(e) { return { err: '❌ Lỗi kết nối. Vui lòng thử lại!' }; }
+}
+
+function md(t) {
+  return t
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/^### (.*)/gm, '<p style="font-weight:700;color:#006c4e;margin:10px 0 4px;font-size:13px">$1</p>')
+    .replace(/^## (.*)/gm, '<p style="font-weight:700;color:#003924;margin:12px 0 4px;font-size:14px">$1</p>')
+    .replace(/^\* (.*)/gm, '<div style="display:flex;gap:6px;margin:3px 0;font-size:13px"><span style="color:#00D084;flex-shrink:0;margin-top:1px">•</span><span>$1</span></div>')
+    .replace(/^- (.*)/gm, '<div style="display:flex;gap:6px;margin:3px 0;font-size:13px"><span style="color:#00D084;flex-shrink:0;margin-top:1px">•</span><span>$1</span></div>')
+    .replace(/\n/g, '<br>');
+}
+
+function renderSources(meta) {
+  const chunks = meta?.groundingMetadata?.groundingChunks || [];
+  if (!chunks.length) return '';
+  return '<div class="mt-3 pt-3 border-t border-outline-variant/20"><p class="text-xs text-outline mb-2">Nguồn tham khảo:</p><div class="flex flex-wrap gap-2">' +
+    chunks.slice(0,5).map(c => `<a href="${c.web?.uri||'#'}" target="_blank" class="text-xs px-3 py-1 bg-surface-container rounded-full border border-outline-variant/20 text-on-surface-variant hover:border-primary hover:text-primary transition-all truncate max-w-[200px]">${c.web?.title||'Nguồn'}</a>`).join('') +
+    '</div></div>';
+}
+
+// ═══ CHAT ═══
+const chatHistory = [];
+async function sendChat() {
+  const inp = document.getElementById('chat-inp');
+  const box = document.getElementById('chat-box');
+  const q = inp.value.trim(); if (!q) return; inp.value = '';
+  box.innerHTML += `<div class="flex items-start gap-3 flex-row-reverse fade-up">
+    <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-white text-[16px]" style="font-variation-settings:'FILL' 1">person</span></div>
+    <div class="glass-bubble-user text-white px-4 py-3 rounded-2xl rounded-tr-none text-sm leading-relaxed max-w-[82%]">${q}</div>
+  </div>`;
+  const typingId = 'typing-' + Date.now();
+  box.innerHTML += `<div class="flex items-start gap-3 fade-up" id="${typingId}">
+    <div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-primary text-[16px]" style="font-variation-settings:'FILL' 1">eco</span></div>
+    <div class="glass-bubble-ai px-4 py-3 rounded-2xl rounded-tl-none text-sm text-outline"><span class="spinner"></span>Đang suy nghĩ...</div>
+  </div>`;
+  box.scrollTop = box.scrollHeight;
+  chatHistory.push({ role:'user', parts:[{ text:q }] });
+  const res = await callAI(chatHistory);
+  const text = res.err || res.text;
+  if (!res.err) chatHistory.push({ role:'model', parts:[{ text:res.text }] });
+  const t = document.getElementById(typingId);
+  if (t) t.outerHTML = `<div class="flex items-start gap-3 fade-up">
+    <div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-primary text-[16px]" style="font-variation-settings:'FILL' 1">eco</span></div>
+    <div class="glass-bubble-ai px-4 py-3 rounded-2xl rounded-tl-none text-sm leading-relaxed max-w-[90%] md-content">${md(text)}</div>
+  </div>`;
+  box.scrollTop = box.scrollHeight;
+}
+function quickAsk(q) { document.getElementById('chat-inp').value = q; sendChat(); }
+
+// ═══ THỰC ĐƠN ═══
+async function taoThucDon() {
+  const calo = document.getElementById('td-calo').value;
+  const mt = document.getElementById('td-mt').value;
+  const diung = document.getElementById('td-diung').value || 'không có';
+  const btn = document.getElementById('td-btn'), result = document.getElementById('td-result');
+  if (!calo) { alert('Vui lòng nhập mục tiêu calo!'); return; }
+  btn.innerHTML = '<span class="spinner"></span>AI đang tạo...'; btn.disabled = true; result.innerHTML = '';
+  const prompt = `Tạo thực đơn 1 ngày cho người Việt Nam:\n- Mục tiêu calo: ${calo} kcal\n- Mục tiêu: ${mt}\n- Không ăn được: ${diung}\nTrả về CHỈ JSON thuần túy:\n{"saSang":{"ten":"...","calo":0,"moTa":"..."},"buaTrua":{"ten":"...","calo":0,"moTa":"..."},"buaToi":{"ten":"...","calo":0,"moTa":"..."},"buaPhu":{"ten":"...","calo":0,"moTa":"..."}}`;
+  const res = await callAI([{role:'user',parts:[{text:prompt}]}], 'Bạn là chuyên gia dinh dưỡng. Chỉ trả về JSON thuần túy.');
+  try {
+    if (res.err) { result.innerHTML = `<p class="text-error text-sm mt-3">${res.err}</p>`; return; }
+    let text = res.text.replace(/```json|```/g,'').trim();
+    const s = text.indexOf('{'), e = text.lastIndexOf('}');
+    if (s >= 0 && e > s) text = text.substring(s, e+1);
+    const menu = JSON.parse(text);
+    const buas = [['🌅 Bữa sáng','saSang'],['☀️ Bữa trưa','buaTrua'],['🌙 Bữa tối','buaToi'],['🍎 Bữa phụ','buaPhu']];
+    let total = 0;
+    let html = '<div class="space-y-2 mt-4">';
+    buas.forEach(([label, key]) => {
+      const item = menu[key] || {};
+      total += (item.calo || 0);
+      html += `<div class="bg-surface-container-lowest rounded-xl border border-outline-variant/20 p-3 fade-up">
+        <p class="text-xs font-bold text-primary mb-0.5">${label}</p>
+        <p class="text-sm font-semibold text-on-surface">${item.ten||'—'}</p>
+        <p class="text-xs text-outline">${item.calo||0} kcal — ${item.moTa||''}</p>
+      </div>`;
+    });
+    html += `<div class="flex justify-between items-center pt-2 border-t border-outline-variant/20 px-1">
+      <span class="text-sm text-outline">Tổng calo</span>
+      <span class="font-black text-primary">${total.toLocaleString()} kcal</span>
+    </div></div>`;
+    result.innerHTML = html;
+  } catch(e) { result.innerHTML = '<p class="text-error text-sm mt-3">Lỗi tạo thực đơn. Thử lại nhé!</p>'; }
+  btn.innerHTML = '<span class="material-symbols-outlined text-[18px]" style="font-variation-settings:\'FILL\' 1">auto_awesome</span>Tạo thực đơn bằng AI';
+  btn.disabled = false;
+}
+
+// ═══ BMI ═══
+function tinhBMI() {
+  const can = +document.getElementById('f-can').value;
+  const cao = +document.getElementById('f-cao').value;
+  const tuoi = +document.getElementById('f-tuoi').value;
+  const gt = document.getElementById('f-gt').value;
+  const vd = document.getElementById('f-vd').value;
+  if (!can || !cao || !tuoi) { alert('Vui lòng nhập đủ thông tin!'); return; }
+  const m = cao/100, bmi = (can/(m*m)).toFixed(1);
+  const bmr = gt==='nam' ? 10*can+6.25*cao-5*tuoi+5 : 10*can+6.25*cao-5*tuoi-161;
+  const heso = {it:1.2,nhe:1.375,vua:1.55,nhieu:1.725};
+  const tdee = Math.round(bmr * heso[vd]);
+  const st = bmi<18.5?'Thiếu cân':bmi<25?'Bình thường ✓':bmi<30?'Thừa cân':'Béo phì';
+  const sc = bmi<18.5?'#378ADD':bmi<25?'#00D084':bmi<30?'#BA7517':'#E24B4A';
+  document.getElementById('r-bmi').textContent = bmi;
+  const stEl = document.getElementById('r-bmi-st');
+  stEl.textContent = st; stEl.style.color = sc;
+  document.getElementById('r-tdee').textContent = tdee.toLocaleString();
+  document.getElementById('r-giam').textContent = (tdee-500).toLocaleString() + ' kcal';
+  document.getElementById('r-tang').textContent = (tdee+500).toLocaleString() + ' kcal';
+  document.getElementById('bmi-result').classList.remove('hidden');
+  document.getElementById('td-calo').value = tdee - 500;
+}
+
+// ═══ TRACKER ═══
+async function autoLookupCalo() {
+  const ten = document.getElementById('nk-lookup-inp').value.trim();
+  const hint = document.getElementById('nk-lookup-result');
+  const sugg = document.getElementById('nk-lookup-sugg');
+  if (!ten) { alert('Vui lòng nhập tên món ăn!'); return; }
+  hint.className = 'text-xs rounded-lg px-3 py-2 mb-3 bg-surface-container text-outline';
+  hint.innerHTML = '<span class="spinner"></span>Đang tra cứu "' + ten + '"...';
+  hint.classList.remove('hidden'); sugg.innerHTML = '';
+  try {
+    const r = await fetch('https://api.nal.usda.gov/fdc/v1/foods/search?query='+encodeURIComponent(ten)+'&api_key=DEMO_KEY&dataType=SR%20Legacy,Foundation&pageSize=4');
+    const data = await r.json();
+    if (data.foods?.length > 0) {
+      const food = data.foods[0];
+      const energy = food.foodNutrients?.find(n => n.nutrientName==='Energy' && n.unitName==='KCAL');
+      if (energy?.value > 0) {
+        const kcal = Math.round(energy.value);
+        document.getElementById('nk-ten').value = ten;
+        document.getElementById('nk-calo').value = kcal;
+        hint.className = 'text-xs rounded-lg px-3 py-2 mb-3 bg-green-50 text-green-800 border border-green-200';
+        hint.innerHTML = '✓ USDA: ' + food.description.substring(0,40) + '... — ' + kcal + ' kcal/100g';
+        if (data.foods.length > 1) {
+          sugg.innerHTML = data.foods.slice(1,4).map(f => {
+            const e2 = f.foodNutrients?.find(n => n.nutrientName==='Energy' && n.unitName==='KCAL');
+            const k2 = e2 ? Math.round(e2.value) : 0; if (!k2) return '';
+            return `<button class="px-3 py-1.5 rounded-full bg-secondary-container text-[#003924] text-xs font-semibold border border-outline-variant/20" onclick="fillTracker('${f.description.substring(0,25).replace(/'/g,"\\'")}',${k2})">${f.description.substring(0,20)}... (${k2})</button>`;
+          }).join('');
+        }
+        return;
+      }
+    }
+  } catch(e) {}
+  hint.innerHTML = '<span class="spinner"></span>Đang hỏi Gemini AI...';
+  const res = await callAI([{role:'user',parts:[{text:`Món ăn "${ten}" (phổ biến tại Việt Nam) có khoảng bao nhiêu kcal trên 100g?\nChỉ trả lời format: KCAL|Ghi chú\nVí dụ: 130|Cơm trắng`}]}], 'Bạn là chuyên gia dinh dưỡng. Trả lời ngắn theo format.');
+  if (!res.err && res.text) {
+    const parts = res.text.trim().split('|'); const kcal = parseInt(parts[0]);
+    if (kcal > 0) {
+      document.getElementById('nk-ten').value = ten;
+      document.getElementById('nk-calo').value = kcal;
+      hint.className = 'text-xs rounded-lg px-3 py-2 mb-3 bg-green-50 text-green-800 border border-green-200';
+      hint.innerHTML = '✓ Gemini AI: ~' + kcal + ' kcal/100g' + (parts[1] ? ' — ' + parts[1] : '');
+      return;
+    }
+  }
+  hint.className = 'text-xs rounded-lg px-3 py-2 mb-3 bg-red-50 text-red-700 border border-red-200';
+  hint.innerHTML = '❌ Không tra được. Vui lòng nhập thủ công.';
+}
+function fillTracker(ten, calo) {
+  document.getElementById('nk-ten').value = ten;
+  document.getElementById('nk-calo').value = calo;
+  const hint = document.getElementById('nk-lookup-result');
+  hint.className = 'text-xs rounded-lg px-3 py-2 mb-3 bg-green-50 text-green-800 border border-green-200';
+  hint.innerHTML = '✓ Đã chọn: ' + ten + ' — ' + calo + ' kcal/100g';
+}
+function themMon() {
+  const ten = document.getElementById('nk-ten').value.trim();
+  const calo = +document.getElementById('nk-calo').value;
+  if (!ten || !calo) { alert('Nhập tên món và calo!'); return; }
+  const nk = JSON.parse(localStorage.getItem('nhatKy') || '[]');
+  nk.push({ ten, calo, gio: new Date().toLocaleTimeString('vi', {hour:'2-digit',minute:'2-digit'}) });
+  localStorage.setItem('nhatKy', JSON.stringify(nk));
+  document.getElementById('nk-ten').value = '';
+  document.getElementById('nk-calo').value = '';
+  document.getElementById('nk-lookup-result').classList.add('hidden');
+  renderTracker();
+}
+function renderTracker() {
+  document.getElementById('tracker-date').textContent = new Date().toLocaleDateString('vi',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const nk = JSON.parse(localStorage.getItem('nhatKy') || '[]');
+  const tong = nk.reduce((s,b) => s+b.calo, 0);
+  const list = document.getElementById('nk-list');
+  const footer = document.getElementById('nk-footer');
+  if (!nk.length) {
+    list.innerHTML = '<div class="px-5 py-8 text-center text-outline text-sm">Chưa có món nào hôm nay 🌿</div>';
+    footer.classList.add('hidden');
+  } else {
+    list.innerHTML = nk.map((b,i) => `<div class="flex items-center gap-3 px-4 py-3">
+      <span class="text-xs text-outline w-10 shrink-0">${b.gio}</span>
+      <span class="flex-1 text-sm font-medium text-on-surface">${b.ten}</span>
+      <span class="text-sm font-bold text-primary mr-2">${b.calo} kcal</span>
+      <button onclick="xoaMon(${i})" class="w-7 h-7 rounded-full flex items-center justify-center text-outline hover:text-error hover:bg-red-50 transition-all text-lg leading-none">×</button>
+    </div>`).join('');
+    document.getElementById('nk-sum').textContent = tong.toLocaleString() + ' kcal';
+    footer.classList.remove('hidden');
+  }
+  document.getElementById('nk-total-num').textContent = tong.toLocaleString();
+  const pct = Math.min(100, Math.round(tong/2000*100));
+  document.getElementById('nk-progress-bar').style.width = pct + '%';
+}
+function xoaMon(i) {
+  const nk = JSON.parse(localStorage.getItem('nhatKy') || '[]'); nk.splice(i,1);
+  localStorage.setItem('nhatKy', JSON.stringify(nk)); renderTracker();
+}
+function xoaNhatKy() { if (confirm('Xoá toàn bộ nhật ký hôm nay?')) { localStorage.removeItem('nhatKy'); renderTracker(); } }
+
+// ═══ KHO THỰC PHẨM VN ═══
+const VN_FOODS=[
+  {ten:'Cơm trắng',nhom:'Ngũ cốc',calo:130,protein:2.7,carb:28.2,fat:0.3,moTa:'Thực phẩm chủ lực',luuy:'GI cao — tiểu đường kiểm soát khẩu phần'},
+  {ten:'Gạo lứt (cơm)',nhom:'Ngũ cốc',calo:111,protein:2.6,carb:23,fat:0.9,moTa:'Giàu chất xơ, GI thấp',luuy:'Tốt cho tiểu đường, tim mạch'},
+  {ten:'Bánh mì trắng',nhom:'Ngũ cốc',calo:265,protein:9,carb:49,fat:3.2,moTa:'Phổ biến bữa sáng',luuy:'GI cao, ít chất xơ'},
+  {ten:'Bún tươi',nhom:'Ngũ cốc',calo:109,protein:2.4,carb:25,fat:0.2,moTa:'Phổ biến bún bò, bún riêu',luuy:'Tinh bột tinh chế'},
+  {ten:'Phở (bánh phở)',nhom:'Ngũ cốc',calo:192,protein:4,carb:43,fat:0.4,moTa:'Thực phẩm truyền thống',luuy:'Carb cao'},
+  {ten:'Thịt heo nạc',nhom:'Thịt',calo:143,protein:20,carb:0,fat:7,moTa:'Nguồn protein phổ biến',luuy:'Chất béo bão hòa vừa'},
+  {ten:'Thịt bò nạc',nhom:'Thịt',calo:158,protein:21,carb:0,fat:8,moTa:'Giàu sắt và kẽm',luuy:'Hạn chế nếu mỡ máu cao'},
+  {ten:'Thịt gà (bỏ da)',nhom:'Thịt',calo:120,protein:23,carb:0,fat:2.6,moTa:'Protein cao, ít béo',luuy:'Tốt cho hầu hết mọi người'},
+  {ten:'Cá tra',nhom:'Hải sản',calo:128,protein:18,carb:0,fat:6,moTa:'Cá nước ngọt phổ biến VN',luuy:'Omega-3 thấp hơn cá biển'},
+  {ten:'Cá thu',nhom:'Hải sản',calo:205,protein:19,carb:0,fat:14,moTa:'Giàu omega-3, DHA',luuy:'Tốt cho tim mạch, não'},
+  {ten:'Tôm sú',nhom:'Hải sản',calo:99,protein:21,carb:0.2,fat:1.1,moTa:'Protein cao, ít béo',luuy:'Cholesterol khá cao'},
+  {ten:'Trứng gà',nhom:'Trứng & Sữa',calo:143,protein:13,carb:0.7,fat:9.5,moTa:'Dinh dưỡng toàn diện',luuy:'1–2 quả/ngày'},
+  {ten:'Sữa tươi nguyên kem',nhom:'Trứng & Sữa',calo:61,protein:3.2,carb:4.8,fat:3.3,moTa:'Nguồn canxi tốt',luuy:'Lactose intolerance cần loại không lactose'},
+  {ten:'Sữa chua (plain)',nhom:'Trứng & Sữa',calo:59,protein:3.5,carb:4.7,fat:3.3,moTa:'Probiotic tốt',luuy:'Chọn loại ít đường'},
+  {ten:'Đậu hũ (đậu phụ)',nhom:'Đậu & Hạt',calo:76,protein:8,carb:1.9,fat:4.8,moTa:'Protein thực vật',luuy:'Tốt cho ăn chay, tiểu đường'},
+  {ten:'Đậu đen',nhom:'Đậu & Hạt',calo:341,protein:21,carb:62,fat:1.4,moTa:'Giàu protein, xơ, sắt',luuy:'Thận mạn kiểm soát kali'},
+  {ten:'Rau muống',nhom:'Rau củ',calo:19,protein:2.6,carb:3.1,fat:0.2,moTa:'Giàu sắt, canxi, vitamin C',luuy:'Warfarin: chú ý vitamin K'},
+  {ten:'Bắp cải',nhom:'Rau củ',calo:25,protein:1.3,carb:5.8,fat:0.1,moTa:'Ít calo, nhiều vitamin C',luuy:'Tốt cho người thận (ít kali)'},
+  {ten:'Cà rốt',nhom:'Rau củ',calo:41,protein:0.9,carb:9.6,fat:0.2,moTa:'Giàu beta-carotene',luuy:'GI vừa'},
+  {ten:'Khoai lang',nhom:'Rau củ',calo:86,protein:1.6,carb:20,fat:0.1,moTa:'GI thấp hơn khoai tây',luuy:'Tốt tiểu đường khi ăn vừa'},
+  {ten:'Chuối',nhom:'Trái cây',calo:89,protein:1.1,carb:23,fat:0.3,moTa:'Giàu kali, năng lượng nhanh',luuy:'Tiểu đường & thận mạn hạn chế'},
+  {ten:'Bưởi',nhom:'Trái cây',calo:42,protein:0.8,carb:11,fat:0.1,moTa:'GI thấp, vitamin C cao',luuy:'Tương tác một số thuốc statin'},
+  {ten:'Ổi',nhom:'Trái cây',calo:68,protein:2.6,carb:14,fat:1,moTa:'GI thấp, vitamin C rất cao',luuy:'Tốt cho tiểu đường'},
+  {ten:'Xoài chín',nhom:'Trái cây',calo:60,protein:0.8,carb:15,fat:0.4,moTa:'Ngon nhưng đường cao',luuy:'Tiểu đường hạn chế'},
+  {ten:'Dầu ô-liu',nhom:'Dầu & Gia vị',calo:884,protein:0,carb:0,fat:100,moTa:'Chất béo không bão hòa đơn',luuy:'Tốt tim mạch, dùng vừa'},
+  {ten:'Nước mắm (1 thìa)',nhom:'Dầu & Gia vị',calo:15,protein:2.7,carb:0.7,fat:0,moTa:'Gia vị truyền thống',luuy:'Rất nhiều natri — hạn chế THA, tim, thận'},
+  {ten:'Mì gói Hảo Hảo',nhom:'Chế biến sẵn',calo:327,protein:7.2,carb:47,fat:13,moTa:'Thực phẩm tiện lợi',luuy:'Natri ~1200mg, chất béo cao — không lành mạnh'},
+  {ten:'Yakult (1 chai 65ml)',nhom:'Đồ uống',calo:50,protein:1,carb:12,fat:0,moTa:'Probiotic L. casei Shirota',luuy:'Đường 10g/chai — tiểu đường cẩn thận'},
+  {ten:'Pocari Sweat (500ml)',nhom:'Đồ uống',calo:125,protein:0,carb:31,fat:0,moTa:'Điện giải bù nước',luuy:'Tốt sau vận động, không dùng hàng ngày'},
+  {ten:'Sầu riêng',nhom:'Trái cây',calo:147,protein:1.5,carb:27.1,fat:5.3,moTa:'Vua trái cây, giàu năng lượng',luuy:'Đường cao — tiểu đường & giảm cân hạn chế'},
+  {ten:'Cá hồi phi lê',nhom:'Hải sản',calo:208,protein:20,carb:0,fat:13,moTa:'Giàu omega-3, DHA, EPA',luuy:'Tốt cho tim mạch, não bộ'},
+];
+let vnNhom = 'Tất cả';
+const VN_NHOMS = ['Tất cả', ...new Set(VN_FOODS.map(f => f.nhom))];
+
+function buildVNFilters() {
+  const el = document.getElementById('sp-vn-filters'); if (el.innerHTML) return;
+  el.innerHTML = VN_NHOMS.map(n => `<button class="px-4 py-2 rounded-full text-xs font-semibold border transition-all ${n===vnNhom?'bg-primary text-white border-primary shadow-[0_4px_12px_rgba(0,208,132,0.25)]':'bg-surface-container-lowest text-on-surface-variant border-outline-variant/20 hover:border-primary hover:text-primary'}" onclick="vnSetNhom(this.dataset.v,this)" data-v="${n}">${n}</button>`).join('');
+}
+function vnSetNhom(n, btn) {
+  vnNhom = n;
+  document.querySelectorAll('#sp-vn-filters button').forEach(b => {
+    const active = b.dataset.v === n;
+    b.className = `px-4 py-2 rounded-full text-xs font-semibold border transition-all ${active?'bg-primary text-white border-primary shadow-[0_4px_12px_rgba(0,208,132,0.25)]':'bg-surface-container-lowest text-on-surface-variant border-outline-variant/20 hover:border-primary hover:text-primary'}`;
+  });
+  renderVN(document.getElementById('sp-vn-search').value);
+}
+function filterVN(q) { renderVN(q); }
+function renderVN(q) {
+  const ql = (q||'').toLowerCase().trim();
+  const list = VN_FOODS.filter(f => (vnNhom==='Tất cả'||f.nhom===vnNhom) && (!ql||f.ten.toLowerCase().includes(ql)));
+  document.getElementById('sp-vn-grid').innerHTML = list.map((f,i) => `
+    <button onclick="showVNDetail(${i},'${f.ten.replace(/'/g,"&apos;")}')" class="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 p-4 text-left hover:border-primary hover:shadow-[0_8px_20px_rgba(0,208,132,0.1)] transition-all group">
+      <span class="inline-block px-2.5 py-0.5 bg-secondary-container text-[#003924] text-[10px] font-bold rounded-full mb-2">${f.nhom}</span>
+      <p class="text-sm font-bold text-on-surface mb-0.5">${f.ten}</p>
+      <p class="text-xs text-primary font-semibold">${f.calo} kcal / 100g</p>
+    </button>`).join('');
+  document.getElementById('sp-vn-detail').innerHTML = '';
+}
+function showVNDetail(idx, ten) {
+  const f = VN_FOODS.find(x => x.ten===ten) || VN_FOODS[idx]; if (!f) return;
+  const tenEsc = f.ten.replace(/'/g,"\\'");
+  document.getElementById('sp-vn-detail').innerHTML = `
+    <div class="bg-surface-container-lowest rounded-2xl border-2 border-primary shadow-[0_12px_30px_rgba(0,208,132,0.1)] overflow-hidden fade-up">
+      <div class="px-5 py-4 border-b border-outline-variant/10 flex justify-between items-start">
+        <div>
+          <span class="inline-block px-2.5 py-0.5 bg-secondary-container text-[#003924] text-[10px] font-bold rounded-full mb-1">${f.nhom}</span>
+          <h3 class="text-base font-black text-on-surface">${f.ten}</h3>
+          <p class="text-xs text-outline">${f.moTa}</p>
+        </div>
+        <button onclick="document.getElementById('sp-vn-detail').innerHTML='';renderVN(document.getElementById('sp-vn-search').value)" class="text-xl text-outline hover:text-on-surface leading-none px-2">×</button>
+      </div>
+      <div class="grid grid-cols-4 gap-0 border-b border-outline-variant/10">
+        ${[['Calo',f.calo,'kcal'],['Protein',f.protein,'g'],['Carb',f.carb,'g'],['Chất béo',f.fat,'g']].map(([l,v,u]) => `<div class="px-3 py-4 text-center border-r border-outline-variant/10 last:border-r-0"><p class="text-[10px] text-outline uppercase tracking-wide mb-1">${l}</p><p class="text-lg font-black text-primary">${v}</p><p class="text-[10px] text-outline">${u}</p></div>`).join('')}
+      </div>
+      <div class="px-5 py-4">
+        <div class="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-4 flex gap-2">
+          <span class="material-symbols-outlined text-amber-500 text-[18px] shrink-0 mt-0.5" style="font-variation-settings:'FILL' 1">warning</span>
+          <p class="text-xs text-amber-800 leading-relaxed">${f.luuy}</p>
+        </div>
+        <button onclick="quickAsk('Tôi nên ăn ${tenEsc} như thế nào? Lợi ích, rủi ro và khuyến nghị cho sức khoẻ?')" class="vibrant-gradient w-full py-3 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-all">
+          <span class="material-symbols-outlined text-[16px]" style="font-variation-settings:'FILL' 1">chat_spark</span>Hỏi AI chi tiết hơn
+        </button>
+      </div>
+    </div>`;
+  document.getElementById('sp-vn-detail').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+// ═══ SO SÁNH ═══
+async function compareProducts() {
+  const p1 = document.getElementById('cmp-1').value.trim();
+  const p2 = document.getElementById('cmp-2').value.trim();
+  const p3 = document.getElementById('cmp-3').value.trim();
+  const goal = document.getElementById('cmp-goal').value;
+  if (!p1||!p2) { alert('Vui lòng nhập ít nhất 2 sản phẩm!'); return; }
+  const btn = document.getElementById('cmp-btn'), res = document.getElementById('cmp-result');
+  btn.innerHTML = '<span class="spinner"></span>AI đang so sánh...'; btn.disabled = true; res.innerHTML = '';
+  const products = [p1, p2]; if (p3) products.push(p3);
+  const prompt = 'So sánh dinh dưỡng: ' + products.map((p,i) => (i+1)+'. '+p).join('; ') + '. Mục tiêu: ' + goal + '. Yêu cầu: 1) Liệt kê calo/protein/carb/fat/đường/natri từng sản phẩm 2) Nhận xét so sánh 3) Kết luận sản phẩm nào tốt hơn 4) Khuyến nghị. Tiếng Việt.';
+  const data = await callAI([{role:'user',parts:[{text:prompt}]}], 'Bạn là chuyên gia dinh dưỡng so sánh sản phẩm. Tìm thông tin từ nhà sản xuất.', [{googleSearch:{}}]);
+  if (data.err) {
+    res.innerHTML = `<div class="bg-red-50 border border-red-200 rounded-2xl p-4 text-sm text-red-700">${data.err}</div>`;
+  } else {
+    res.innerHTML = `<div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 p-5 shadow-sm">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="material-symbols-outlined text-primary text-[20px]">analytics</span>
+        <h3 class="font-bold text-on-surface">Kết quả phân tích AI</h3>
+      </div>
+      <div class="text-sm leading-relaxed md-content">${md(data.text||'Không so sánh được.')}</div>
+      ${renderSources(data.meta)}
+    </div>`;
+  }
+  btn.innerHTML = '<span class="material-symbols-outlined text-[18px]" style="font-variation-settings:\'FILL\' 1">auto_awesome</span>So sánh bằng AI';
+  btn.disabled = false;
+}
+
+// ═══ TRA CỨU ═══
+function spQuick(q) { document.getElementById('sp-q').value = q; searchProduct(); }
+async function searchProduct() {
+  const q = document.getElementById('sp-q').value.trim(); if (!q) return;
+  const btn = document.getElementById('sp-btn'), res = document.getElementById('sp-result'), src = document.getElementById('sp-sources');
+  btn.innerHTML = '<span class="spinner"></span>Tra...'; btn.disabled = true;
+  res.innerHTML = '<div class="bg-surface-container rounded-2xl p-6 text-center text-outline text-sm"><span class="spinner"></span>Đang tra cứu thông tin dinh dưỡng...</div>';
+  src.innerHTML = '';
+  const system = 'Bạn là chuyên gia dinh dưỡng phân tích sản phẩm. Cung cấp: 1) Thông tin dinh dưỡng (calo, protein, carb, fat, đường, muối) trên 100g VÀ khẩu phần. 2) Vitamin & khoáng chất nổi bật. 3) Đánh giá lành mạnh hay không. 4) Phù hợp/không phù hợp với ai. 5) Lưu ý thành phần. Tiếng Việt.';
+  const data = await callAI([{role:'user',parts:[{text:'Tra cứu thông tin dinh dưỡng đầy đủ của: '+q+'. Tìm từ nhà sản xuất hoặc nguồn đáng tin cậy.'}]}], system, [{googleSearch:{}}]);
+  if (data.err) {
+    res.innerHTML = `<div class="bg-red-50 border border-red-200 rounded-2xl p-4 text-sm text-red-700">${data.err}</div>`;
+  } else {
+    res.innerHTML = `<div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 p-5 shadow-sm md-content">${md(data.text||'Không tìm thấy.')}</div>`;
+    src.innerHTML = renderSources(data.meta);
+  }
+  btn.innerHTML = '<span class="material-symbols-outlined text-[18px]" style="font-variation-settings:\'FILL\' 1">auto_awesome</span>AI tra';
+  btn.disabled = false;
+}
+
+// ═══ QUÉT NHÃN ═══
+let spPhotoBase64 = null, spPhotoType = null;
+function handlePhotoUpload(inp) {
+  if (!inp.files?.[0]) return;
+  const file = inp.files[0]; spPhotoType = file.type || 'image/jpeg';
+  const reader = new FileReader();
+  reader.onload = e => {
+    spPhotoBase64 = e.target.result.split(',')[1];
+    document.getElementById('sp-preview-img').src = e.target.result;
+    document.getElementById('sp-img-preview').classList.remove('hidden');
+    document.getElementById('sp-analyze-btn').classList.remove('hidden');
+    document.getElementById('sp-upload-label').style.padding = '1.25rem';
+  };
+  reader.readAsDataURL(file);
+}
+async function analyzePhoto() {
+  if (!spPhotoBase64) { alert('Vui lòng chọn ảnh!'); return; }
+  const btn = document.getElementById('sp-analyze-btn'), res = document.getElementById('sp-photo-result');
+  btn.innerHTML = '<span class="spinner"></span>AI đang đọc nhãn...'; btn.disabled = true; res.innerHTML = '';
+  const body = {
+    contents:[{role:'user',parts:[
+      {inline_data:{mime_type:spPhotoType,data:spPhotoBase64}},
+      {text:'Đây là ảnh nhãn/bảng thành phần dinh dưỡng. Hãy: 1. Đọc và liệt kê thông tin dinh dưỡng (calo, protein, carb, fat, đường, muối, vitamin). 2. Đánh giá có lành mạnh không? 3. Phù hợp/không phù hợp với ai? 4. Lưu ý thành phần đáng chú ý. Trả lời bằng tiếng Việt.'}
+    ]}],
+    systemInstruction:{parts:[{text:'Bạn là chuyên gia dinh dưỡng. Đọc nhãn thực phẩm và phân tích chi tiết bằng tiếng Việt.'}]}
+  };
+  try {
+    const r = await fetch('/api/gemini', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const d = await r.json();
+    const text = d.candidates?.[0]?.content?.parts?.[0]?.text || 'Không đọc được nhãn.';
+    res.innerHTML = `<div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 p-5 shadow-sm md-content">${md(text)}</div>`;
+  } catch(e) { res.innerHTML = '<p class="text-error text-sm">Lỗi kết nối!</p>'; }
+  btn.innerHTML = '<span class="material-symbols-outlined" style="font-variation-settings:\'FILL\' 1">bolt</span>AI phân tích nhãn';
+  btn.disabled = false;
+}
+
+// ═══ INIT ═══
+renderTracker();
+</script>
+</body>
+</html>

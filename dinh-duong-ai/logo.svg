@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 64" width="200" height="64">
+  <!-- Icon nền tròn -->
+  <circle cx="32" cy="32" r="32" fill="#E1F5EE"/>
+  <circle cx="32" cy="32" r="30" fill="none" stroke="#1D9E75" stroke-width="1.5"/>
+  <!-- Bát -->
+  <path d="M14 30 Q14 48 32 50 Q50 48 50 30" fill="none" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M16 30 Q16 46 32 48 Q48 46 48 30Z" fill="#1D9E75" opacity="0.15"/>
+  <!-- Lá trang trí trên bát -->
+  <path d="M32 28 C28 20, 22 18, 24 12 C26 6, 32 8, 32 14 C32 8, 38 6, 40 12 C42 18, 36 20, 32 28Z" fill="#0F6E56"/>
+  <!-- Gân lá -->
+  <path d="M32 28 L32 14" fill="none" stroke="#E1F5EE" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
+  <!-- Tên thương hiệu -->
+  <text x="74" y="24" font-family="Be Vietnam Pro, sans-serif" font-size="16" font-weight="600" fill="#0F6E56">Dinh Dưỡng AI</text>
+  <text x="76" y="42" font-family="Be Vietnam Pro, sans-serif" font-size="11" font-weight="400" fill="#1D9E75">Tư vấn cá nhân hoá</text>
+</svg>
