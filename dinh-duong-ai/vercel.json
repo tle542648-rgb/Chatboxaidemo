@@ -4,9 +4,5 @@
     "api/gemini.js": {
       "maxDuration": 30
     }
-  },
-  "rewrites": [
-    { "source": "/api/gemini", "destination": "/api/gemini" },
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
-  ]
+  }
 }
